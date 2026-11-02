@@ -221,7 +221,3 @@ __marimo__/
 
 # custom configurations
 .vscode
-
-# input data
-
-# output data which may be produced in the same repository
