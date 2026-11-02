@@ -218,3 +218,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# custom configurations
+.vscode
+
+# input data
+
+# output data which may be produced in the same repository
