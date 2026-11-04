@@ -109,7 +109,7 @@ class Warrior(Character):
             self,
             name: str,
             hp_max: int = 110,                      # Slightly higher default health
-            damage: int = 10,
+            damage: int = 12,                       # Slightly higher default damage
             weapon: items.Weapon | None = None,
             armor: items.Armor | None = None
         ) -> None:
