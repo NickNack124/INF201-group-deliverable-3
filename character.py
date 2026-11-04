@@ -63,26 +63,31 @@ class Character(Char):
 
     def attack(self, target: Character) -> None:
         """Attack and deal damage to target character"""
-        if target.is_alive:
-            if type(self.weapon) is None:
-                # The damage dealt with no weapon
-                damage_received = self.damage
-                print(f"{self.name} swung their fist directly at {target.name}!")
+        if not self._is_alive:
+            # We make sure a dead character can't attack
+            print(f"{self.name} is dead and can't attack.")
 
-            elif type(self.weapon) is items.Weapon:
-                # Rather than replacing the damage-dealt entirily, we chose to have the weapon modify the damage dealt
-                # This way, two characters of differing strength (damage) wielding the same weapon,
-                # deal different amounts of damage
-                damage_received = round(self.damage + ((self.damage / 10) * self.weapon.roll_damage()))
-                print(f"{self.name}, wielding the mighty {self.weapon.name}, launches an attack at {target.name}!")
-
-            target.take_damage(damage_received)
         else:
-            print(f"Beating a dead horse, are we? LET {(target.name).upper()} REST!")
+            if target.is_alive:
+                if self.weapon is None:
+                    # The damage dealt with no weapon
+                    damage_dealt = self.damage
+                    print(f"{self.name} swung their fist directly at {target.name}!")
+
+                elif type(self.weapon) is items.Weapon:
+                    # Rather than replacing the damage-dealt entirily, we chose to have the weapon modify
+                    # the damage dealt. This way, two characters of differing strength (damage) wielding 
+                    # the same weapon, deal different amounts of damage.
+                    damage_dealt = round(self.damage + ((self.damage / 10) * self.weapon.roll_damage()))
+                    print(f"{self.name}, wielding the mighty {self.weapon.name}, launches an attack at {target.name}!")
+
+                target.take_damage(damage_received=damage_dealt)
+            else:
+                print(f"Beating a dead horse, are we? LET {(target.name).upper()} REST!")
 
     def death(self) -> None:
         """To add some variety, we randomized the death message for when a character dies"""
-        if not self._is_alive:
+        if not self.is_alive:
             print(
                 rd.choice([
                     f"{self.name} has fallen. May the worms feed on their remains.",
@@ -133,7 +138,7 @@ class Warrior(Character):
         )
 
         # Gives a default armor for the warrior class with a value of 5
-        if type(self.armor) is type(None):
+        if self.armor is None:
             self.armor = items.Armor(armor=5)
 
 
@@ -181,7 +186,7 @@ class Mage(Character):
                 # restore 5 mana
                 self._mana += 5
 
-                if type(self.weapon) is None:
+                if self.weapon is None:
                     # The damage dealt with no weapon
                     damage_received = self.damage
                     print(f"{self.name} swung their fist directly at {target.name}!")
