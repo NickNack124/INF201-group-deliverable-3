@@ -18,6 +18,14 @@ class Weapon:
         self.name = name
         self.damage_dice = damage_dice
 
-    def roll_damage(self, damage_dice: Dice) -> int:
+    def roll_damage(self) -> int:
         """Rolls the amount of damage the weapon should deal"""
         return self.damage_dice.roll()
+
+    def __repr__(self) -> str:
+        """Representation of weapon object"""
+        return f"<Weapon name={self.name} damage_dice={self.damage_dice}>)"
+
+    def __str__(self) -> str:
+        """String representation of weapon object"""
+        return f"Character: {self.name} with {self.damage_dice} as its damage-dice"
