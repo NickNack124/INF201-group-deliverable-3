@@ -20,4 +20,10 @@ class Dice:
 
         def __call__(self):
             return self.roll()
-            
+
+
+d6 = Dice()
+d20 = Dice(sides=20)
+
+print(d6)
+print(d20.roll())
