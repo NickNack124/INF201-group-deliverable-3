@@ -26,5 +26,5 @@ d6 = Dice()
 d20 = Dice(sides=20)
 
 print(d6)
-print(d20.roll())
-print(d20())
+print(f'd6 rolled: {d6()}')
+print(f'd20 rolled: {d20()}')
