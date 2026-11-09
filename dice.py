@@ -16,8 +16,8 @@ class Dice:
     def roll(self):
         """Rolls the dice and returns a random integer between 1 and the number of sides."""
         result = rd.randint(1, self.sides)
-        print(f"Rolled a {self.sides}-sided dice: {result}")
-        return result
+        return print(f"The dice rolled a {result}")
+         
 
     def __repr__(self):
         """Representation of the Dice object."""
