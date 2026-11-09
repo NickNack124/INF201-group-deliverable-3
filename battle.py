@@ -20,7 +20,7 @@ class Battle:
             self.enemy.attack(self.hero)
 
     def simulate_battle(self):
-        """Simulates a full battle between the hero and the enemy."""
+        """Simulates a full battle between the hero and the enemy."""  
         while self.hero.is_alive() and self.enemy.is_alive():
             self.play_round()
 

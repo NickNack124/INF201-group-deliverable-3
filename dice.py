@@ -25,3 +25,12 @@ class Dice:
         """Allows the Dice object to be called like a function to roll the dice."""
         return self.roll()
 
+    def describe(self):
+        """Provides a description of the dice."""
+        return f"This is a {self.sides}-sided dice."
+
+    def roll(self):
+        """Rolls the dice and returns a random integer between 1 and the number of sides."""
+        result = rd.randint(1, self.sides)
+        print(f"Rolled a {self.sides}-sided dice: {result}")
+        return result
