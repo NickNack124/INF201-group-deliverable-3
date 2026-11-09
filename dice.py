@@ -13,9 +13,11 @@ class Dice:
             raise ValueError("Dice must have at least 2 sides.")
         self.sides = sides
 
-    def __roll__(self):
+    def roll(self):
         """Rolls the dice and returns a random integer between 1 and the number of sides."""
-        return rd.randint(1, self.sides)
+        result = rd.randint(1, self.sides)
+        print(f"Rolled a {self.sides}-sided dice: {result}")
+        return result
 
     def __repr__(self):
         """Representation of the Dice object."""
@@ -29,8 +31,3 @@ class Dice:
         """Provides a description of the dice."""
         return f"This is a {self.sides}-sided dice."
 
-    def roll(self):
-        """Rolls the dice and returns a random integer between 1 and the number of sides."""
-        result = rd.randint(1, self.sides)
-        print(f"Rolled a {self.sides}-sided dice: {result}")
-        return result
