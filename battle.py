@@ -16,15 +16,15 @@ class Battle:
         """Simulates a single round of battle between the hero and the enemy."""
         self.hero.attack(self.enemy)
 
-        if self.enemy.is_alive():
+        if self.enemy.is_alive:
             self.enemy.attack(self.hero)
 
     def simulate_battle(self):
         """Simulates a full battle between the hero and the enemy."""  
-        while self.hero.is_alive() and self.enemy.is_alive():
+        while self.hero.is_alive and self.enemy.is_alive:
             self.play_round()
 
-        if self.hero.is_alive():
+        if self.hero.is_alive:
             print(f'Hero wins!')
         else:
             print(f'Enemy wins!')
