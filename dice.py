@@ -13,7 +13,7 @@ class Dice:
             raise ValueError("Dice must have at least 2 sides.")
         self.sides = sides
 
-    def roll(self):
+    def __roll__(self):
         """Rolls the dice and returns a random integer between 1 and the number of sides."""
         return rd.randint(1, self.sides)
 
