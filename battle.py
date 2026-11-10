@@ -1,7 +1,10 @@
 
 """A module containing the "Battle" class-definition."""
 
+import random as rd
 import time
+
+from character import Character, Mage, Warrior
 
 
 class Battle:
