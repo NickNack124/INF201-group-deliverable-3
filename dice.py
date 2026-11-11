@@ -30,5 +30,4 @@ class Dice:
 
     def __call__(self):
         """The default action that will occur when trying to use an object of this class as a function"""
-        d20 = Dice(sides=20)
-        return d20.roll()
+        return self.roll()

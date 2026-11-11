@@ -43,7 +43,7 @@ class Armor:
             armor (int): The armor-value, aka the amount of additional HP this piece of armor acts as (default = 5).
         """
         self.name = name
-        self.armor = armor
+        self.armor = abs(int(round(armor.real)))
 
     def value(self) -> int:
         """Returns the armor-value (also called "armor class" or "AC" for short)."""

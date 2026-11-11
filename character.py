@@ -33,14 +33,16 @@ class Character(Char):
             armor (items.Armor | None): Optional armor that modifies the damage received (default = None).
         """
         # Inherited arguments
-        super().__init__(name=name)
+        super().__init__(
+            name=name,
+            hp_max=hp_max,
+            damage=damage
+        )
         # We turn float, str(int | float) and complex.real into integers
-        self.damage = abs(int(round(damage.real, 0)))
+        self.damage = abs(int(round(damage.real)))
         # Setting a lower limit on hp (no upper limit yet for scalability)
-        if hp_max <= 0:
-            self.hp_max = 1
-        else:
-            self.hp_max = abs(int(round(hp_max.real, 0)))
+        self.hp_max = max(abs(int(round(hp_max.real))), 1)
+        self._hp = self.hp_max
 
         # Defining protected version(s) of read-only variable(s)
         self._is_alive = True
@@ -50,17 +52,9 @@ class Character(Char):
         self.armor = armor
 
         # "ac" = "armor class" = how much it protects the wearer
-        if self.armor is None:
-            self.ac = 0
-            self.armor_name = "nothing"
-        else:
-            self.ac = self.armor.value()
-            self.armor_name = self.armor.name
-
-        if self.weapon is None:
-            self.weapon_name = "nothing"
-        else:
-            self.weapon_name = self.weapon.name
+        self.ac = self.armor.value() if self.armor else 0
+        self.armor_name = self.armor.name if self.armor else "nothing"
+        self.weapon_name = self.weapon.name if self.weapon else "nothing"
 
     def stats(self) -> str:
         """Sends a message about the character's stats"""
@@ -96,29 +90,28 @@ class Character(Char):
         """Does a damage calculation that can be performed by any class"""
         if self.weapon is None:
             # The damage dealt with no weapon
-            damage_received = self.damage
             print(f"{self.name} swung their fist directly at {target.name}!")
+            return self.damage
 
-        elif type(self.weapon) is items.Weapon:
-            # Rather than replacing the damage-dealt entirily, we chose to have the weapon modify
-            # the damage dealt. This way, two characters of differing strength (damage) wielding 
-            # the same weapon, deal different amounts of damage.
-            damage_received = self.damage + round((self.damage / 10) * self.weapon.roll_damage())
-            print(f"{self.name}, wielding the mighty {self.weapon.name}, launches an attack at {target.name}!")
+        # Rather than replacing the damage-dealt entirily, we chose to have the weapon modify
+        # the damage dealt. This way, two characters of differing strength (damage) wielding 
+        # the same weapon, deal different amounts of damage.
+        damage_received = self.damage + round((self.damage / 10) * self.weapon.roll_damage())
+        print(f"{self.name}, wielding the mighty {self.weapon.name}, launches an attack at {target.name}!")
         return damage_received
 
     def attack(self, target: Character) -> None:
         """Attack and deal damage to target character"""
-        if not self._is_alive:
+        if not self.is_alive:
             # We make sure a dead character can't attack
             print(f"{self.name} is dead and can't attack.")
             return
 
-        else:
-            if not target.is_alive:
-                print(f"Beating a dead horse, are we? LET {(target.name).upper()} REST!")
-                return
-            damage_received = self.default_attack(target=target)
+        if not target.is_alive:
+            print(f"Beating a dead horse, are we? LET {(target.name).upper()} REST!")
+            return
+
+        damage_received = self.default_attack(target)
         target.take_damage(damage_received)
 
     def death(self) -> None:
@@ -184,7 +177,6 @@ class Warrior(Character):
             weapon=weapon,
             armor=armor
         )
-        self._hp = hp_max
         # Gives a default armor for the warrior class with a value of 5
         if self.armor is None:
             self.armor = items.Armor(armor=5)
@@ -258,10 +250,9 @@ class Mage(Character):
             weapon=weapon,
             armor=armor
         )
-        self._hp = hp_max
         # Ensuring mana max is not below 0 (and treating it as valid in as many ways as we can)
         self.mana_max = abs(int(round(mana_max.real, 0)))
-        self._mana = mana_max
+        self._mana = self.mana_max
 
     def stats(self):
         """Sends a message about the character's stats"""
@@ -269,6 +260,10 @@ class Mage(Character):
 
     def attack(self, target: Character) -> None:
         """Attack and deal damage to target character"""
+        if not self._is_alive:
+            print(f"{self.name} is dead and can't attack.")
+            return
+
         if not target.is_alive:
             print(f"Beating a dead horse, are we? LET {(target.name).upper()} REST!")
             return
@@ -280,8 +275,9 @@ class Mage(Character):
             print(f"{self.name} shot an arcane projectile at {target.name}!")
         else:
             # restore 5 mana
-            self._mana += 5
+            self._mana = min(self.mana_max, self._mana + 5)
             damage_received = self.default_attack(target)
+
         target.take_damage(damage_received)
 
     def __repr__(self) -> str:
