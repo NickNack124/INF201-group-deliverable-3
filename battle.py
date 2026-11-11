@@ -4,7 +4,7 @@
 import random as rd
 import time
 
-from character import Character, Mage, Warrior
+from character import Character
 
 
 class Battle:
@@ -29,6 +29,7 @@ class Battle:
         while self.hero.is_alive and self.enemy.is_alive:
             self.play_round()
 
+        time.sleep(1.5)
         if self.hero.is_alive:
             print(f'{self.hero.name} wins!')
         else:
