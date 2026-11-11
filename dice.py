@@ -24,6 +24,11 @@ class Dice:
         """Representation of the Dice object."""
         return f'<Dice(sides={self.sides})>'
 
-    def describe(self) -> str:
+    def __str__(self) -> str:
         """Provides a description of the dice."""
-        return f"This is a {self.sides}-sided dice."
+        return f"A dice with sides: {self.sides}"
+
+    def __call__(self):
+        """The default action that will occur when trying to use an object of this class as a function"""
+        d20 = Dice(sides=20)
+        return d20.roll()

@@ -4,8 +4,10 @@ as well as any related class-definitions.
 """
 
 import random as rd
+import time
 
 import items
+from dice import Dice
 from game_simulator_v1 import Character as Char
 
 
@@ -32,20 +34,37 @@ class Character(Char):
         """
         # Inherited arguments
         super().__init__(name=name)
-        # Defining protected version(s) of read-only variable(s)
-        self._is_alive = True
-        # Attributes from optional items
-        self.weapon = weapon
-        self.armor = armor
-
         # We turn float, str(int | float) and complex.real into integers
         self.damage = abs(int(round(damage.real, 0)))
-
         # Setting a lower limit on hp (no upper limit yet for scalability)
         if hp_max <= 0:
             self.hp_max = 1
         else:
             self.hp_max = abs(int(round(hp_max.real, 0)))
+
+        # Defining protected version(s) of read-only variable(s)
+        self._is_alive = True
+
+        # Attributes from optional items
+        self.weapon = weapon
+        self.armor = armor
+
+        # "ac" = "armor class" = how much it protects the wearer
+        if self.armor is None:
+            self.ac = 0
+            self.armor_name = "nothing"
+        else:
+            self.ac = self.armor.value()
+            self.armor_name = self.armor.name
+
+        if self.weapon is None:
+            self.weapon_name = "nothing"
+        else:
+            self.weapon_name = self.weapon.name
+
+    def stats(self) -> str:
+        """Sends a message about the character's stats"""
+        return f"- {self.name}: {self._hp}/{self.hp_max} HP (+{self.ac} AC).\n"
 
     def take_damage(self, damage_received: int) -> None:
         """Receive damage from a damage-source, and subtract HP accordingly."""
@@ -53,15 +72,14 @@ class Character(Char):
             print(f"{self.name} won't get any deader than dead!")
             return
 
-        if type(self.armor) is items.Armor:
-            # The damage received, reduced by the worn armor
-            damage_received = max(0, damage_received - self.armor.value())
-
+        # The damage received (reduced by worn armor)
+        damage_received = max(0, damage_received - self.ac)
         self._hp = max(0, self._hp - damage_received)
-        print(
-            f"{self.name} took {damage_received} damage.",
-            f"- Current stats: {self._hp}/{self.hp_max} HP.\n"
-        )
+
+        print(f"{self.name} took {damage_received + self.ac} damage.")
+        print(f"{self.stats()}")
+
+        # Checks if character has died from this damage or not
         self.death()
 
     def heal(self, healing_received: int) -> None:
@@ -71,10 +89,8 @@ class Character(Char):
             return
 
         self._hp = min(self.hp_max, self._hp + healing_received)
-        print(
-            f"{self.name} has been healed for {healing_received} HP.",
-            f"- Current health: {self._hp}/{self.hp_max} HP.\n"
-        )
+        print(f"{self.name} has been healed for {healing_received} HP.")
+        print(self.stats())
 
     def default_attack(self, target: Character) -> int:
         """Does a damage calculation that can be performed by any class"""
@@ -87,7 +103,7 @@ class Character(Char):
             # Rather than replacing the damage-dealt entirily, we chose to have the weapon modify
             # the damage dealt. This way, two characters of differing strength (damage) wielding 
             # the same weapon, deal different amounts of damage.
-            damage_received = round(self.damage + ((self.damage / 10) * self.weapon.roll_damage()))
+            damage_received = self.damage + round((self.damage / 10) * self.weapon.roll_damage())
             print(f"{self.name}, wielding the mighty {self.weapon.name}, launches an attack at {target.name}!")
         return damage_received
 
@@ -108,14 +124,26 @@ class Character(Char):
     def death(self) -> None:
         """To add some variety, we randomized the death message for when a character dies"""
         if not self.is_alive:
-            print(
-                rd.choice([
-                    f"{self.name} has fallen. May the worms feed on their remains.",
-                    f"The one known as {self.name} is no more. May they rest in peace.",
-                    f"The brightest lights burn the fastest, and it was {self.name}'s time to fizzle out.",
-                    f"Ashes to ashes, dust to dust. May {self.name} find peace in the beyond."
+            time.sleep(1.5)
+            print(rd.choice([
+                f"{self.name} has fallen. May the worms feed on their remains.\n",
+                f"The one known as {self.name} is no more. May they rest in peace.\n",
+                f"The brightest lights burn the fastest, and it was {self.name}'s time to fizzle out.\n",
+                f"Ashes to ashes, dust to dust. May {self.name} find peace in the beyond.\n"
                 ])
             )
+
+    def __repr__(self) -> str:
+        """Representation of character object (with the added attributes)"""
+        return \
+        f"<Character(name={self.name}, hp={self.hp}, damage={self.damage}, "\
+        f"weapon={self.weapon_name}, armor={self.ac})>"
+
+    def __str__(self) -> str:
+        """String representation of character object (does not need to show equipment)"""
+        return \
+        f"Character: {self.name} with {self.hp} HP and {self.damage} damage, "\
+        f"wielding {self.weapon_name} and wearing {self.armor_name} with value {self.ac}."
 
     @property
     def is_alive(self) -> bool:
@@ -156,11 +184,48 @@ class Warrior(Character):
             weapon=weapon,
             armor=armor
         )
+        self._hp = hp_max
         # Gives a default armor for the warrior class with a value of 5
         if self.armor is None:
             self.armor = items.Armor(armor=5)
+        self.ac = self.armor.value()
+        self.armor_name = self.armor.name
 
-    # The rest of class is the same as character (since we chose to have armor be an attribute for the parent class)
+    # Since we chose to give every character the ability to wear armor, we decided to give
+    # the warrior a special ability as well, to make them more unique
+    def death(self) -> None:
+        """The warrior stubbornly tries to cling on to life if their HP reach 0"""
+        if self._hp == 0:
+            time.sleep(1.5)
+            print(f"{self.name} feels a beating in his heart...")
+
+            time.sleep(1)
+            if Dice(20).roll() > 15:
+                # The warrior rolls more than 15, letting them recover a random amount of health
+                time.sleep(1)
+                print(f"{self.name} is not finished yet!!")
+                recovery = Dice(20).roll()
+                time.sleep(1)
+                self.heal(recovery)
+                time.sleep(1)
+                print(f"{self.name} is not finished yet! They heal {recovery} HP from sheer will!")
+            else:
+                time.sleep(1.5)
+                print("False alarm. It was just rigor mortis.")
+                time.sleep(0.5)
+                super().death()
+
+    def __repr__(self) -> str:
+        """Representation of warrior object"""
+        return \
+        f"<Warrior(name={self.name}, hp={self.hp}, damage={self.damage}, "\
+        f"weapon={self.weapon_name}, armor={self.ac})>"
+
+    def __str__(self) -> str:
+        """String representation of warrior object (does not need to show equipment)"""
+        return \
+        f"Warrior: {self.name} with {self.hp} HP and {self.damage} damage, "\
+        f"wielding {self.weapon_name} and wearing {self.armor_name} with value {self.ac}."
 
 
 class Mage(Character):
@@ -193,13 +258,14 @@ class Mage(Character):
             weapon=weapon,
             armor=armor
         )
-        # Setting a lower limit on max mana
-        if mana_max < 0:
-            self.mana_max = 0
-        else:
-            self.mana_max = mana_max
-        # Defining protected version(s) of read-only variable(s)
+        self._hp = hp_max
+        # Ensuring mana max is not below 0 (and treating it as valid in as many ways as we can)
+        self.mana_max = abs(int(round(mana_max.real, 0)))
         self._mana = mana_max
+
+    def stats(self):
+        """Sends a message about the character's stats"""
+        return f"- {self.name}: {self.hp}/{self.hp_max} HP (+{self.ac} AC). Mana: {self._mana}/{self.mana_max}\n"
 
     def attack(self, target: Character) -> None:
         """Attack and deal damage to target character"""
@@ -211,12 +277,24 @@ class Mage(Character):
             # The damage dealt from a magical attack
             damage_received = self.damage * 2
             self._mana -= 10
-            print(f"{self.name} shot an arcane projectiile at {target.name}!")
+            print(f"{self.name} shot an arcane projectile at {target.name}!")
         else:
             # restore 5 mana
             self._mana += 5
             damage_received = self.default_attack(target)
         target.take_damage(damage_received)
+
+    def __repr__(self) -> str:
+        """Representation of mage object"""
+        return \
+        f"<Mage(name={self.name}, hp={self.hp}, mana={self.mana}, damage={self.damage}, "\
+        f"weapon={self.weapon_name}, armor={self.ac})>"
+
+    def __str__(self) -> str:
+        """String representation of warrior object (does not need to show equipment)"""
+        return \
+        f"Mage: {self.name} with {self.hp} HP, {self.damage} damage and {self.mana} mana, "\
+        f"wielding {self.weapon_name} and wearing {self.armor_name} with value {self.ac}."
 
     @property
     def mana(self) -> int:

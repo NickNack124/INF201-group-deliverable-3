@@ -29,7 +29,7 @@ class Character:
 
     def __repr__(self) -> str:
         """Representation of character object"""
-        return f"<Character name={self.name} hp={self.hp} damage={self.damage}>)"
+        return f"<Character(name={self.name}, hp={self.hp}, damage={self.damage})>"
 
     def __str__(self) -> str:
         """String representation of character object"""

@@ -24,7 +24,7 @@ class Weapon:
 
     def __repr__(self) -> str:
         """Representation of weapon object"""
-        return f"<Weapon name={self.name} damage_dice={self.damage_dice}>)"
+        return f"<Weapon(name={self.name}, damage_dice={self.damage_dice})>"
 
     def __str__(self) -> str:
         """String representation of weapon object"""
@@ -51,8 +51,8 @@ class Armor:
 
     def __repr__(self) -> str:
         """Representation of armor object"""
-        return f"<Armor name={self.name} armor-value={self.armor}>)"
+        return f"<Armor(name={self.name}, armor={self.armor})>"
 
     def __str__(self) -> str:
         """String representation of armor object"""
-        return f"Armor: {self.name} with {self.armor} as its armor-value"
+        return f"Armor: {self.name} with armor-value: {self.armor}"

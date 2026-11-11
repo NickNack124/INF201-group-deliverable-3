@@ -17,10 +17,10 @@ class Battle:
 
     def play_round(self):
         """Simulates a single round of battle between two characters."""
-        time.sleep(1.5)
+        time.sleep(2)
         self.hero.attack(self.enemy)
-        time.sleep(1.5)
 
+        time.sleep(2)
         if self.enemy.is_alive:
             self.enemy.attack(self.hero)
 
@@ -29,8 +29,16 @@ class Battle:
         while self.hero.is_alive and self.enemy.is_alive:
             self.play_round()
 
-        time.sleep(1.5)
+        time.sleep(1)
         if self.hero.is_alive:
             print(f'{self.hero.name} wins!')
         else:
             print(f'{self.enemy.name} wins!')
+
+    def __repr__(self) -> str:
+        """How the class should be represented when called on its own"""
+        return f'<Battle(hero={self.hero}, enemy={self.enemy})>'
+
+    def __str__(self):
+        """A description of the battle"""
+        return f'A might battle between hero: {self.hero} and enemy: {self.enemy}'
