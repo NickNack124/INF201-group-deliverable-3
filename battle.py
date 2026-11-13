@@ -1,6 +1,7 @@
 
 """A module containing the "Battle" class-definition."""
 
+import random as rd
 import time
 
 from character import Character
@@ -14,25 +15,40 @@ class Battle:
         self.hero = hero
         self.enemy = enemy
 
-    def play_round(self) -> None:
+    def play_round(self, round: int = 1) -> None:
         """Simulates a single round of battle between two characters."""
-        time.sleep(2)
+        # We also use a formula to accelerate the time it takes as rounds increase
+        time.sleep(2 * 2**(-0.2 * round))
+        print(f"ROUND {round}:")
+        time.sleep(0.5 * 2**(-0.2 * round))
         self.hero.attack(self.enemy)
 
-        time.sleep(2)
+        time.sleep(2 * 2**(-0.2 * round))
         if self.enemy.is_alive:
             self.enemy.attack(self.hero)
 
-    def simulate_battle(self) -> None:
+    def simulate_battle(self) -> str:
         """Simulates a full battle between the two characters."""
+        round = 0
         while self.hero.is_alive and self.enemy.is_alive:
-            self.play_round()
+            round += 1
+            if round > 30:
+                time.sleep(2)
+                print("NO MORE! This battle has gone on for long enough!")
+                print("I shall declare the victor...")
+                break
+            else:
+                self.play_round(round)
 
-        time.sleep(1)
-        if self.hero.is_alive:
-            print(f'{self.hero.name} wins!')
+        time.sleep(2)
+        if round > 30 and self.hero.is_alive and self.enemy.is_alive:
+            winner = rd.choice([self.enemy, self.hero])
+            return f'{(winner.name).upper()} WINS!!'
         else:
-            print(f'{self.enemy.name} wins!')
+            if self.hero.is_alive and not self.enemy.is_alive:
+                return f'{(self.hero.name).upper()} WINS!!'
+            else:
+                return f'{(self.enemy.name).upper()} WINS!!'
 
     def __repr__(self) -> str:
         """How the class should be represented when called on its own"""

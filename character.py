@@ -63,14 +63,15 @@ class Character(Char):
     def take_damage(self, damage_received: int) -> None:
         """Receive damage from a damage-source, and subtract HP accordingly."""
         if not self._is_alive:
-            print(f"{self.name} won't get any deader than dead!")
+            print(f"{self.name} won't get any deader than dead!\n")
+            time.sleep(1)
             return
 
         # The damage received (reduced by worn armor)
         damage_received = max(0, damage_received - self.ac)
         self._hp = max(0, self._hp - damage_received)
 
-        print(f"{self.name} took {damage_received + self.ac} damage.")
+        print(f"{self.name} took {damage_received} damage.")
         print(f"{self.stats()}")
 
         # Checks if character has died from this damage or not
@@ -79,7 +80,8 @@ class Character(Char):
     def heal(self, healing_received: int) -> None:
         """Restores HP when receiving healing from a healing-source."""
         if not self._is_alive:
-            print(f"{self.name} must be revived first if they wish to be healed.")
+            print(f"{self.name} must be revived first if they wish to be healed.\n")
+            time.sleep(1)
             return
 
         self._hp = min(self.hp_max, self._hp + healing_received)
@@ -94,7 +96,7 @@ class Character(Char):
             return self.damage
 
         # Rather than replacing the damage-dealt entirily, we chose to have the weapon modify
-        # the damage dealt. This way, two characters of differing strength (damage) wielding 
+        # the damage dealt. This way, two characters of differing strength (damage) wielding
         # the same weapon, deal different amounts of damage.
         damage_received = self.damage + round((self.damage / 10) * self.weapon.roll_damage())
         print(f"{self.name}, wielding the mighty {self.weapon.name}, launches an attack at {target.name}!")
@@ -191,16 +193,14 @@ class Warrior(Character):
             time.sleep(1.5)
             print(f"{self.name} feels a beating in his heart...")
 
-            time.sleep(1)
+            time.sleep(2)
             if Dice(20).roll() > 15:
                 # The warrior rolls more than 15, letting them recover a random amount of health
-                time.sleep(1)
+                time.sleep(1.5)
                 print(f"{self.name} is not finished yet!!")
                 recovery = Dice(20).roll()
-                time.sleep(1)
+                time.sleep(0.5)
                 self.heal(recovery)
-                time.sleep(1)
-                print(f"{self.name} is not finished yet! They heal {recovery} HP from sheer will!")
             else:
                 time.sleep(1.5)
                 print("False alarm. It was just rigor mortis.")
@@ -254,18 +254,20 @@ class Mage(Character):
         self.mana_max = abs(int(round(mana_max.real, 0)))
         self._mana = self.mana_max
 
-    def stats(self):
+    def stats(self) -> str:
         """Sends a message about the character's stats"""
         return f"- {self.name}: {self.hp}/{self.hp_max} HP (+{self.ac} AC). Mana: {self._mana}/{self.mana_max}\n"
 
     def attack(self, target: Character) -> None:
         """Attack and deal damage to target character"""
         if not self._is_alive:
-            print(f"{self.name} is dead and can't attack.")
+            print(f"{self.name} is dead and can't attack.\n")
+            time.sleep(1)
             return
 
         if not target.is_alive:
-            print(f"Beating a dead horse, are we? LET {(target.name).upper()} REST!")
+            print(f"Beating a dead horse, are we? LET {(target.name).upper()} REST!\n")
+            time.sleep(1)
             return
 
         if self._mana >= 10:
